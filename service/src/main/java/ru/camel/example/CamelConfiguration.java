@@ -3,6 +3,7 @@ package ru.camel.example;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.servlet.CamelHttpTransportServlet;
 import org.apache.camel.spring.SpringCamelContext;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -14,8 +15,9 @@ import ru.camel.example.route.ApplicationCamelRouter;
  */
 @Configuration
 public class CamelConfiguration {
-    private static final String CAMEL_URL_MAPPING = "/camel/*";
-    private static final String CAMEL_SERVLET_NAME = "CamelServlet";
+    @Value("${camel.servlet-path}")
+    private String CAMEL_URL_MAPPING;
+    private final String CAMEL_SERVLET_NAME = "CamelServlet";
 
     @Bean
     public ServletRegistrationBean servletRegistrationBean() {

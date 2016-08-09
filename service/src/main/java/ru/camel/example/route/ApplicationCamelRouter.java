@@ -48,8 +48,8 @@ public class ApplicationCamelRouter extends RouteBuilder {
                 .end();
 
 
-        rest("/camel")
-                .get("test").to("direct:hello")/*.type(PaymentDTO.class)*//*.verb("OK from Camel").responseMessage()*/;
+//        rest("/camel")
+//                .get("test").to("direct:hello")/*.type(PaymentDTO.class)*//*.verb("OK from Camel").responseMessage()*/;
 
     }
 }
