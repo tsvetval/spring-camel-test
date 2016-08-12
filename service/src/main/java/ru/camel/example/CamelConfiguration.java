@@ -17,7 +17,8 @@ import ru.camel.example.route.ApplicationCamelRouter;
 public class CamelConfiguration {
     @Value("${camel.servlet-path}")
     private String CAMEL_URL_MAPPING;
-    private final String CAMEL_SERVLET_NAME = "CamelServlet";
+    @Value("${camel.servlet-name:CamelServlet}")
+    private String CAMEL_SERVLET_NAME;
 
     @Bean
     public ServletRegistrationBean servletRegistrationBean() {

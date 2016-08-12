@@ -1,13 +1,10 @@
 package ru.camel.example.route;
 
-import org.apache.camel.Exchange;
-import org.apache.camel.ExchangePattern;
-import org.apache.camel.Expression;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.model.dataformat.JsonLibrary;
-import org.springframework.http.MediaType;
+import org.apache.camel.model.rest.RestBindingMode;
 import org.springframework.stereotype.Component;
-import org.springframework.util.MimeType;
+import ru.camel.example.model.payment.PaymentNumRequest;
+import ru.camel.example.model.payment.PaymentRequestValidator;
 
 import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
@@ -21,15 +18,23 @@ public class ApplicationCamelRouter extends RouteBuilder {
     @Override
     public void configure() throws Exception {
         //TODO move to configuration
-        restConfiguration().component("servlet");
+        restConfiguration().component("servlet").bindingMode(RestBindingMode.auto);
         //.bindingMode(RestBindingMode.json)
         // .dataFormatProperty("prettyPrint", "true")
         // .port(8081);;
 
         rest()
             .get("/ping").route().transform().constant("OK").setHeader(CONTENT_TYPE, constant(TEXT_PLAIN_VALUE)).endRest()
-            .post("/payments").route().transform().constant("OK").setHeader(CONTENT_TYPE, constant(TEXT_PLAIN_VALUE)).endRest()
-            .post("/payments/{session}").route().transform().constant("OK").setHeader(CONTENT_TYPE, constant(TEXT_PLAIN_VALUE)).endRest()
+            .post("/payments").consumes("application/json")
+                .type(PaymentNumRequest.class)
+                .outType(PaymentNumRequest.class)
+                .route()
+                .validate(new PaymentRequestValidator())
+                //.marshal().json(JsonLibrary.Jackson)/*.convertBodyTo(String.class)*/.setHeader(CONTENT_TYPE, constant(APPLICATION_JSON))
+                .endRest()
+            .post("/payments/{session}").consumes("application/json")
+                .type(PaymentNumRequest.class)
+                .route().transform().constant("OK").setHeader(CONTENT_TYPE, constant(TEXT_PLAIN_VALUE)).endRest()
             .get("/payments/{session}").route().transform().constant("OK").setHeader(CONTENT_TYPE, constant(TEXT_PLAIN_VALUE)).endRest()
             .post("/payments/{session}/cancel").route().transform().constant("OK").setHeader(CONTENT_TYPE, constant(TEXT_PLAIN_VALUE)).endRest()
             .post("/payments/{session}/confirm").route().transform().constant("OK").setHeader(CONTENT_TYPE, constant(TEXT_PLAIN_VALUE)).endRest();
