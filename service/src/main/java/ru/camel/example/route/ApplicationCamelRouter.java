@@ -29,6 +29,7 @@ public class ApplicationCamelRouter extends RouteBuilder {
     ErrorTransformer errorTransformer;
 
     public final String paymentsPostDirect = "direct:payments.post";
+    public final String paymentsSessionGetDirect = "direct:payments.session.get";
 
     @Override
     public void configure() throws Exception {
@@ -43,23 +44,26 @@ public class ApplicationCamelRouter extends RouteBuilder {
                 .end();
 
         rest()
-                .get("/ping").route().transform().constant("OK").setHeader(CONTENT_TYPE, constant(TEXT_PLAIN_VALUE)).endRest()
+                .get("/ping").route().transform().constant("").setHeader(CONTENT_TYPE, constant(TEXT_PLAIN_VALUE)).endRest()
                 .post("/payments").consumes(APPLICATION_JSON_VALUE)
                     .type(PaymentNumRequest.class)
-                    //  .outType(PaymentNumResponse.class)
+                    //.outType(PaymentNumResponse.class)
                     .route()
                     .validate(paymentRequestValidator)
                     .to(paymentsPostDirect)
                     .endRest()
-                .post("/payments/{session}").consumes("application/json")
-                .type(PaymentNumRequest.class)
-                .route().transform().constant("OK").setHeader(CONTENT_TYPE, constant(TEXT_PLAIN_VALUE)).endRest()
-                .get("/payments/{session}").route().transform().constant("OK").setHeader(CONTENT_TYPE, constant(TEXT_PLAIN_VALUE)).endRest()
-                .post("/payments/{session}/cancel").route().transform().constant("OK").setHeader(CONTENT_TYPE, constant(TEXT_PLAIN_VALUE)).endRest()
-                .post("/payments/{session}/confirm").route().transform().constant("OK").setHeader(CONTENT_TYPE, constant(TEXT_PLAIN_VALUE)).endRest();
-
-
-
+                .get("/payments/{session}").consumes(APPLICATION_JSON_VALUE)
+                    .route()
+                    .to(paymentsSessionGetDirect)
+                    .endRest()
+                .post("/payments/{session}/cancel")
+                    .route()
+                    .to(paymentsSessionGetDirect)
+                    .endRest()
+                .post("/payments/{session}/confirm")
+                    .route()
+                    .to(paymentsSessionGetDirect)
+                    .endRest();
 
 
         from(paymentsPostDirect)
@@ -75,6 +79,20 @@ public class ApplicationCamelRouter extends RouteBuilder {
                         payment.setPayType(Payment.PayType.CARD);
                         response.setPayment(payment);
                         return (T) response;
+                    }
+                });
+
+
+        from(paymentsSessionGetDirect)
+                .setHeader(CONTENT_TYPE, constant(APPLICATION_JSON))
+                .setBody(new Expression() {
+                    @Override
+                    public <T> T evaluate(Exchange exchange, Class<T> type) {
+                        String session = (String)exchange.getIn().getHeader("session");
+                        Payment payment = new Payment();
+                        payment.setSum(100d);
+                        payment.setPayType(Payment.PayType.CARD);
+                        return (T) payment;
                     }
                 });
     }
