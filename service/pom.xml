@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>camel-spring-test</artifactId>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
     <properties>
         <camel.version>2.17.1</camel.version>
@@ -72,10 +72,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-<!--        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-hateoas</artifactId>
-        </dependency>-->
+
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -100,12 +97,12 @@
             <artifactId>camel-servlet</artifactId>
             <version>${camel.version}</version>
         </dependency>
-<!--
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-xstream</artifactId>
-            <version>${camel.version}</version>
-        </dependency>-->
+        <!--
+                <dependency>
+                    <groupId>org.apache.camel</groupId>
+                    <artifactId>camel-xstream</artifactId>
+                    <version>${camel.version}</version>
+                </dependency>-->
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-jackson</artifactId>
@@ -176,7 +173,18 @@
 
 
     </dependencies>
-
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 
 
 </project>
